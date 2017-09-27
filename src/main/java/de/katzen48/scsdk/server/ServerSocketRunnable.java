@@ -9,29 +9,32 @@ import de.katzen48.scsdk.event.events.server.ClientConnectEvent;
 class ServerSocketRunnable implements Runnable
 {
 	Server server;
-	
-	
+
+
 	protected ServerSocketRunnable(Server lServer)
 	{
 		this.server = lServer;
 	}
-	
-	
+
+
 	@Override
 	public void run()
 	{
-		while(server.isAcceptingClients())
+		while(true)
 		{
-			try
+			if(server.isAcceptingClients())
 			{
-				Socket lSocket = server.serverSocket.accept();
-				ClientConnectEvent lConnectEvent = new ClientConnectEvent(lSocket);
-				server.getEventManager().fireEvent(lConnectEvent);
-				if(!lConnectEvent.isCancelled()) server.addClient(new ConnectedClient(UUID.randomUUID(), lSocket));
-			}
-			catch (IOException e)
-			{
-				e.printStackTrace();
+				try
+				{
+					Socket lSocket = server.serverSocket.accept();
+					ClientConnectEvent lConnectEvent = new ClientConnectEvent(lSocket);
+					server.getEventManager().fireEvent(lConnectEvent);
+					if(!lConnectEvent.isCancelled()) server.addClient(new ConnectedClient(UUID.randomUUID(), lSocket));
+				}
+				catch (IOException e)
+				{
+					e.printStackTrace();
+				}
 			}
 		}
 	}

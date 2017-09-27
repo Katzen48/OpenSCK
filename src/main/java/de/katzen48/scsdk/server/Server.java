@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.UUID;
 
 import de.katzen48.scsdk.Networkable;
+import de.katzen48.scsdk.server.listener.MessageBroadcastListener;
+import de.katzen48.scsdk.server.listener.MessageRedirectListener;
 
 public class Server extends Networkable
 {
@@ -17,8 +19,8 @@ public class Server extends Networkable
 	private int maxClients;
 	private boolean acceptingClients;
 	private UUID uuid;
-	
-	
+
+
 	public Server(int pPort, int pMaxClients)
 	{
 		try
@@ -26,7 +28,7 @@ public class Server extends Networkable
 			setClientFlag();
 			this.serverSocket = new ServerSocket(pPort);
 			this.maxClients = pMaxClients;
-			this.acceptingClients = false;
+			this.acceptingClients = true;
 			this.uuid = UUID.randomUUID();
 		}
 		catch (IOException e)
@@ -34,35 +36,37 @@ public class Server extends Networkable
 			e.printStackTrace();
 		}
 	}
-	
+
 	public Server(int pPort)
 	{
 		this(pPort, -1);
 	}
-	
-	
+
+
 	public void start()
 	{
 		this.clients = new ArrayList<ConnectedClient>();
 		this.socketThread = new Thread(new ServerSocketRunnable(this));
 		socketThread.start();
+		getEventManager().registerEvents(new MessageBroadcastListener(this));
+		getEventManager().registerEvents(new MessageRedirectListener(this));
 	}
-	
+
 	protected void addClient(ConnectedClient pClient)
 	{
 		clients.add(pClient);
 	}
-	
+
 	public boolean isAcceptingClients()
 	{
 		return (acceptingClients && (clients.size() < maxClients || maxClients < 0));
 	}
-	
+
 	private void setClientFlag()
 	{
 		try
 		{
-			Field lFlag = this.getClass().getSuperclass().getDeclaredField("client");
+			Field lFlag = searchField(this.getClass(), "client");
 			lFlag.setAccessible(true);
 			lFlag.set(this, false);
 			lFlag.setAccessible(false);
@@ -72,12 +76,26 @@ public class Server extends Networkable
 			e.printStackTrace();
 		}
 	}
-	
+
+	private Field searchField(Class<?> pClass, String pFieldName)
+	{
+		Field lField = null;
+		try
+		{
+			lField = pClass.getDeclaredField(pFieldName);
+		}
+		catch(Exception e)
+		{
+			lField = searchField(pClass.getSuperclass(), pFieldName);
+		}
+		return lField;
+	}
+
 	public List<ConnectedClient> getConnectedClients()
 	{
 		return this.clients;
 	}
-	
+
 	public ConnectedClient getClient(UUID pUUID)
 	{
 		ConnectedClient lClient = null;
@@ -87,7 +105,7 @@ public class Server extends Networkable
 		}
 		return lClient;
 	}
-	
+
 	protected ConnectedClient getClient(Socket pSocket)
 	{
 		ConnectedClient lClient = null;
@@ -97,7 +115,7 @@ public class Server extends Networkable
 		}
 		return lClient;
 	}
-	
+
 	public UUID getServerID()
 	{
 		return this.uuid;

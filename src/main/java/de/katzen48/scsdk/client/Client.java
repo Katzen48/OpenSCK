@@ -9,14 +9,14 @@ import de.katzen48.scsdk.event.events.client.RemoteConnectEvent;
 public class Client extends Networkable
 {
 	protected Socket socket;
-	
-	
+
+
 	public Client()
 	{
 		setClientFlag();
 	}
-	
-	
+
+
 	public void start(String pHost, int pPort)
 	{
 		try
@@ -31,12 +31,12 @@ public class Client extends Networkable
 			e.printStackTrace();
 		}
 	}
-	
+
 	private void setClientFlag()
 	{
 		try
 		{
-			Field lFlag = this.getClass().getSuperclass().getDeclaredField("client");
+			Field lFlag = searchField(this.getClass(), "client");
 			lFlag.setAccessible(true);
 			lFlag.set(this, true);
 			lFlag.setAccessible(false);
@@ -46,7 +46,21 @@ public class Client extends Networkable
 			e.printStackTrace();
 		}
 	}
-	
+
+	private Field searchField(Class<?> pClass, String pFieldName)
+	{
+		Field lField = null;
+		try
+		{
+			lField = pClass.getDeclaredField(pFieldName);
+		}
+		catch(Exception e)
+		{
+			lField = searchField(pClass.getSuperclass(), pFieldName);
+		}
+		return lField;
+	}
+
 	public Socket getSocket()
 	{
 		return this.socket;
