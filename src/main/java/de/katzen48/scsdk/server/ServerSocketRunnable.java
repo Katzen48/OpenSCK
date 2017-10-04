@@ -27,10 +27,10 @@ class ServerSocketRunnable implements Runnable
 				try
 				{
 					Socket lSocket = server.serverSocket.accept();
-					ClientConnectEvent lConnectEvent = new ClientConnectEvent(lSocket);
-					server.getEventManager().fireEvent(lConnectEvent);
 					ConnectedClient lClient = new ConnectedClient(UUID.randomUUID(), lSocket);
 					server.addClient(lClient);
+					ClientConnectEvent lConnectEvent = new ClientConnectEvent(lSocket);
+					server.getEventManager().fireEvent(lConnectEvent);
 					if(lConnectEvent.isCancelled()) server.kickClient(lClient);
 				}
 				catch (IOException e)

@@ -44,6 +44,7 @@ public class NetworkDispatcher
 		}
 		else
 		{
+			System.out.println("Sending packet to Client");
 			sendBytes(((Server)networkable).getClient(pClientID).getSocket(), pMessage, MessageTarget.CLIENT, pOrigin);
 		}
 	}
@@ -82,6 +83,7 @@ public class NetworkDispatcher
 				ByteBuf lByteBuf = new ByteBuf();
 				pMessage.toBytes(lByteBuf);
 				lOutput.writeObject(lByteBuf.getBytes());
+				lOutput.flush();
 			}
 			else
 			{
@@ -91,6 +93,7 @@ public class NetworkDispatcher
 				ByteBuf lByteBuf = new ByteBuf();
 				pMessage.toBytes(lByteBuf);
 				lOutput.writeObject(lByteBuf.getBytes());
+				lOutput.flush();
 			}
 			
 		}
@@ -104,7 +107,7 @@ public class NetworkDispatcher
 	{
 		for(byte lChannel : registeredPackets.keySet())
 		{
-			if(registeredPackets.get(lChannel).getClass().equals(pMessage.getClass()))
+			if(registeredPackets.get(lChannel).equals(pMessage.getClass()))
 			{
 				return lChannel;
 			}

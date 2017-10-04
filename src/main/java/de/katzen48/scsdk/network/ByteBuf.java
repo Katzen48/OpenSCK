@@ -2,17 +2,18 @@ package de.katzen48.scsdk.network;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class ByteBuf
 {
-	private byte[][] bytes;
+	private List<byte[]> bytes;
 	private int currentIndex;
 	
 	
 	public ByteBuf(byte[][] pBytes)
 	{
-		this.bytes = pBytes;
+		this.bytes = Arrays.asList(pBytes);
 		this.currentIndex = 0;
 	}
 	
@@ -54,7 +55,7 @@ public class ByteBuf
 	
 	public byte[] getNextBytes()
 	{
-		byte[] lBytes = bytes[currentIndex];
+		byte[] lBytes = bytes.get(currentIndex);
 		currentIndex++;
 		return lBytes;
 	}
@@ -87,27 +88,18 @@ public class ByteBuf
 	
 	public void setNextBytes(byte[]pBytes)
 	{
-		if(bytes == null) bytes = new byte[1][];
-		bytes[currentIndex] = pBytes;
+		if(bytes == null) bytes = new ArrayList<byte[]>();
+		bytes.add(pBytes);
 		currentIndex++;
 	}
 	
 	public void addByteBuf(ByteBuf pByteBuf)
 	{
-		List<byte[]> lByteList = new ArrayList<byte[]>();
-		for(byte[] lBytes : bytes)
-		{
-			lByteList.add(lBytes);
-		}
-		for(byte[] lBytes : pByteBuf.getBytes())
-		{
-			lByteList.add(lBytes);
-		}
-		this.bytes = (byte[][]) lByteList.toArray();
+		bytes.addAll(Arrays.asList(pByteBuf.getBytes()));
 	}
 	
 	public byte[][] getBytes()
 	{
-		return this.bytes;
+		return bytes.toArray(new byte[bytes.size()][]);
 	}
 }

@@ -25,22 +25,26 @@ public class ClientSocketRunnable implements Runnable
 		try
 		{
 			InputStream lInput = client.socket.getInputStream();
-			if(lInput.available() > 0)
+			
+			while(true)
 			{
-		    	ObjectInputStream is = new ObjectInputStream(lInput);
-				try
+				if(lInput.available() != 0)
 				{
-					int lChannel = lInput.read();
-					byte[] lOriginArray = (byte[])is.readObject();
-					UUID lOrigin = UUID.fromString(new String(lOriginArray, "UTF-8"));
-					byte[][] lArray = (byte[][])is.readObject();
-					IMessage lPacket = client.getNetworkDispatcher().getRegisteredPackets().get((byte) lChannel).newInstance();
-					lPacket.fromBytes(new ByteBuf(lArray));
-					client.getEventManager().fireEvent(new MessageReceiveEvent(lOrigin, lPacket));
-				}
-				catch (Exception e)
-				{
-					e.printStackTrace();
+			    	ObjectInputStream is = new ObjectInputStream(lInput);
+					try
+					{
+						int lChannel = lInput.read();
+						byte[] lOriginArray = (byte[])is.readObject();
+						UUID lOrigin = UUID.fromString(new String(lOriginArray, "UTF-8"));
+						byte[][] lArray = (byte[][])is.readObject();
+						IMessage lPacket = client.getNetworkDispatcher().getRegisteredPackets().get((byte) lChannel).newInstance();
+						lPacket.fromBytes(new ByteBuf(lArray));
+						client.getEventManager().fireEvent(new MessageReceiveEvent(lOrigin, lPacket));
+					}
+					catch (Exception e)
+					{
+						e.printStackTrace();
+					}
 				}
 			}
 		}
