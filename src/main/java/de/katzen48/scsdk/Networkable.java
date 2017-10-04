@@ -18,8 +18,8 @@ public abstract class Networkable
 		this.dispatcher = new NetworkDispatcher(this);
 		this.eventManager = new EventManager();
 		
-		dispatcher.registerPacket(AuthenticationPacket.class, (byte) -2);
-		dispatcher.registerPacket(ClientListPacket.class, (byte) -3);
+		dispatcher.registerPacket(AuthenticationPacket.class, (byte) -1);
+		dispatcher.registerPacket(ClientListPacket.class, (byte) -2);
 	}
 	
 	

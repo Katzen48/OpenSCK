@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.net.Socket;
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
@@ -16,13 +17,12 @@ import de.katzen48.scsdk.network.packet.IMessage;
 
 class ServerSocketReaderRunnable implements Runnable
 {
-	private List<Socket> sockets;
+	private List<ConnectedClient> clients;
 	private Server server;
 	
 	
-	protected ServerSocketReaderRunnable(List<Socket> pSockets, Server pServer)
+	protected ServerSocketReaderRunnable(Server pServer)
 	{
-		this.sockets = pSockets;
 		this.server = pServer;
 	}
 	
@@ -32,25 +32,25 @@ class ServerSocketReaderRunnable implements Runnable
 	{
 		while(true)
 		{
-			for(Socket lSocket : sockets)
+			this.clients = server.getConnectedClients();
+			for(Iterator<ConnectedClient> it= clients.iterator() ; it.hasNext();)
 			{
+				ConnectedClient lClient = it.next();
 				try
 				{
-					InputStream lInput = lSocket.getInputStream();
-					if(lInput.available() > 0)
+					InputStream lInput = lClient.getSocket().getInputStream();
+					if(lInput.available() != 0)
 					{
 					    ObjectInputStream is = new ObjectInputStream(lInput);
 						try
 						{
-							int lChannel = lInput.read();
-							int lTarget = lInput.read();
-							UUID lClientID = null;
-							byte[] lIDArray = (byte[])is.readObject();
-							if(MessageTarget.CLIENT.value == lTarget) lClientID = UUID.fromString(new String(lIDArray, "UTF-8"));
+							byte lChannel = is.readByte();
+							int lTarget = (int) is.readByte();
+							UUID lClientID = UUID.fromString(is.readUTF());
 							byte[][] lArray = (byte[][])is.readObject();
 							IMessage lPacket = server.getNetworkDispatcher().getRegisteredPackets().get((byte) lChannel).newInstance();
 							lPacket.fromBytes(new ByteBuf(lArray));
-							fireEvent(lSocket, lChannel, lTarget, lClientID, lPacket);
+							fireEvent(lClient.getSocket(), lChannel, lTarget, lClientID, lPacket);
 						}
 						catch (Exception e)
 						{

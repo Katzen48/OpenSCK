@@ -11,6 +11,8 @@ public abstract class Client extends Networkable
 {
 	protected Socket socket;
 	private UUID clientID;
+	private Thread socketThread;
+	protected boolean ready = false;
 
 
 	public Client()
@@ -24,6 +26,10 @@ public abstract class Client extends Networkable
 		try
 		{
 			this.socket = new Socket(pHost, pPort);
+			this.socketThread = new Thread(new ClientSocketRunnable(this));
+			socketThread.start();
+			getEventManager().registerEvents(new MessageReceiveListener(this));
+			getEventManager().registerEvents(new RemoteAuthenticationListener(this));
 			RemoteConnectEvent lConnectEvent = new RemoteConnectEvent(this.socket);
 			getEventManager().fireEvent(lConnectEvent);
 			if(lConnectEvent.isCancelled())
@@ -31,7 +37,6 @@ public abstract class Client extends Networkable
 				socket.close();
 				return;
 			}
-			getEventManager().registerEvents(new MessageReceiveListener(this));
 		}
 		catch (Exception e)
 		{

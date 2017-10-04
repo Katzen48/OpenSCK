@@ -33,9 +33,8 @@ public class ClientSocketRunnable implements Runnable
 			    	ObjectInputStream is = new ObjectInputStream(lInput);
 					try
 					{
-						int lChannel = lInput.read();
-						byte[] lOriginArray = (byte[])is.readObject();
-						UUID lOrigin = UUID.fromString(new String(lOriginArray, "UTF-8"));
+						byte lChannel = is.readByte();
+						UUID lOrigin = UUID.fromString(is.readUTF());
 						byte[][] lArray = (byte[][])is.readObject();
 						IMessage lPacket = client.getNetworkDispatcher().getRegisteredPackets().get((byte) lChannel).newInstance();
 						lPacket.fromBytes(new ByteBuf(lArray));

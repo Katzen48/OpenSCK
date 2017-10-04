@@ -2,7 +2,7 @@ package de.katzen48.scsdk.network;
 
 public enum MessageTarget
 {
-	CLIENT(0), ALL(1), SERVER(2);
+	CLIENT(-1), ALL(-2), SERVER(-3);
 	
 	
 	public final int value;

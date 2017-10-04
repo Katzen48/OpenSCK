@@ -6,6 +6,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.UUID;
 
 import de.katzen48.scsdk.Networkable;
@@ -15,6 +16,7 @@ import de.katzen48.scsdk.server.listener.MessageRedirectListener;
 public class Server extends Networkable
 {
 	protected ServerSocket serverSocket;
+	private Thread socketReaderThread;
 	private List<ConnectedClient> clients;
 	private int maxClients;
 	private boolean acceptingClients;
@@ -48,6 +50,8 @@ public class Server extends Networkable
 		this.clients = new ArrayList<ConnectedClient>();
 		this.socketThread = new Thread(new ServerSocketRunnable(this));
 		socketThread.start();
+		this.socketReaderThread = new Thread(new ServerSocketReaderRunnable(this));
+		socketReaderThread.start();
 		getEventManager().registerEvents(new MessageBroadcastListener(this));
 		getEventManager().registerEvents(new MessageRedirectListener(this));
 		getEventManager().registerEvents(new ClientConnectListener(this));
@@ -55,7 +59,8 @@ public class Server extends Networkable
 
 	protected void addClient(ConnectedClient pClient)
 	{
-		clients.add(pClient);
+		ListIterator<ConnectedClient> it = clients.listIterator();
+		it.add(pClient);
 	}
 	
 	public void kickClient(ConnectedClient pClient)
@@ -68,7 +73,11 @@ public class Server extends Networkable
 		{
 			e.printStackTrace();
 		}
-		clients.remove(pClient);
+		ListIterator<ConnectedClient> it = clients.listIterator();
+		while(it.hasNext())
+		{
+			if(it.next().equals(pClient)) it.remove();
+		}
 	}
 
 	public boolean isAcceptingClients()
