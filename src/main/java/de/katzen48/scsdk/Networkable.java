@@ -1,9 +1,10 @@
 package de.katzen48.scsdk;
 
 import de.katzen48.scsdk.event.EventManager;
+import de.katzen48.scsdk.network.AuthenticationPacket;
 import de.katzen48.scsdk.network.NetworkDispatcher;
 
-public class Networkable
+public abstract class Networkable
 {
 	protected Thread socketThread;
 	private NetworkDispatcher dispatcher;
@@ -11,10 +12,11 @@ public class Networkable
 	private boolean client;
 	
 	
-	protected Networkable()
+	public Networkable()
 	{
 		this.dispatcher = new NetworkDispatcher(this);
 		this.eventManager = new EventManager();
+		dispatcher.registerPacket(AuthenticationPacket.class, (byte) -1);
 	}
 	
 	

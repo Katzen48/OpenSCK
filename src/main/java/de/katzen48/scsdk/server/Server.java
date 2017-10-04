@@ -50,11 +50,25 @@ public class Server extends Networkable
 		socketThread.start();
 		getEventManager().registerEvents(new MessageBroadcastListener(this));
 		getEventManager().registerEvents(new MessageRedirectListener(this));
+		getEventManager().registerEvents(new ClientConnectListener(this));
 	}
 
 	protected void addClient(ConnectedClient pClient)
 	{
 		clients.add(pClient);
+	}
+	
+	public void kickClient(ConnectedClient pClient)
+	{
+		try
+		{
+			pClient.getSocket().close();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+		clients.remove(pClient);
 	}
 
 	public boolean isAcceptingClients()

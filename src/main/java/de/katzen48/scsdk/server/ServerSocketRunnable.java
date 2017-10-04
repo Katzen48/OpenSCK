@@ -29,7 +29,9 @@ class ServerSocketRunnable implements Runnable
 					Socket lSocket = server.serverSocket.accept();
 					ClientConnectEvent lConnectEvent = new ClientConnectEvent(lSocket);
 					server.getEventManager().fireEvent(lConnectEvent);
-					if(!lConnectEvent.isCancelled()) server.addClient(new ConnectedClient(UUID.randomUUID(), lSocket));
+					ConnectedClient lClient = new ConnectedClient(UUID.randomUUID(), lSocket);
+					server.addClient(lClient);
+					if(lConnectEvent.isCancelled()) server.kickClient(lClient);
 				}
 				catch (IOException e)
 				{

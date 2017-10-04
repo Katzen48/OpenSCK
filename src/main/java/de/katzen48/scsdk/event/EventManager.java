@@ -1,21 +1,19 @@
 package de.katzen48.scsdk.event;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class EventManager
 {
-	private List<Method> eventMethods;
-	private Map<Method,IListener> eventHandlers;
+	private Map<IListener,List<Method>> eventHandlers;
 
 
 	public EventManager()
 	{
-		this.eventMethods = new ArrayList<Method>();
-		this.eventHandlers = new HashMap<Method,IListener>();
+		this.eventHandlers = new HashMap<IListener,List<Method>>();
 	}
 
 
@@ -32,23 +30,34 @@ public class EventManager
 	{
 		if(pMethod.isAnnotationPresent(EventHandler.class))
 		{
-			eventMethods.add(pMethod);
-			eventHandlers.put(pMethod, pListener);
+			if(!eventHandlers.containsKey(pListener))
+			{
+				eventHandlers.put(pListener, Arrays.asList(pMethod));
+			}
+			else
+			{
+				eventHandlers.get(pListener).add(pMethod);
+			}
 		}
 	}
 
 	private void sortEvents()
 	{
-		if(eventMethods.size() < 2) return;
-		for(int i = 0 ; i < eventMethods.size() ; i++)
+		for(IListener lListener : eventHandlers.keySet())
 		{
-			for(int lKey = 0 ; lKey < eventMethods.size() ; lKey++)
+			List lEventMethods = eventHandlers.get(lListener);
+			
+			if(lEventMethods.size() < 2) return;
+			for(int i = 0 ; i < lEventMethods.size() ; i++)
 			{
-				if(eventMethods.get(lKey).getAnnotation(EventHandler.class).priority().value > eventMethods.get(lKey).getAnnotation(EventHandler.class).priority().value)
+				for(int lKey = 0 ; lKey < lEventMethods.size() ; lKey++)
 				{
-					Method lMethod = eventMethods.get(0);
-					eventMethods.set(0, eventMethods.get(1));
-					eventMethods.set(1, lMethod);
+					if(((Method) lEventMethods.get(lKey)).getAnnotation(EventHandler.class).priority().value > ((Method) lEventMethods.get(lKey)).getAnnotation(EventHandler.class).priority().value)
+					{
+						Method lMethod = (Method) lEventMethods.get(0);
+						lEventMethods.set(0, lEventMethods.get(1));
+						lEventMethods.set(1, lMethod);
+					}
 				}
 			}
 		}
@@ -56,25 +65,31 @@ public class EventManager
 
 	public void fireEvent(Event pEvent)
 	{
-		for(Method lMethod : eventMethods)
+		for(IListener lListener : eventHandlers.keySet())
 		{
-			for(Class<?> lClass : lMethod.getParameterTypes())
+			List<Method> lEventMethods = eventHandlers.get(lListener);
+			
+			for(Method lMethod : lEventMethods)
 			{
-				if(lClass.equals(pEvent.getClass()))
+				for(Class<?> lClass : lMethod.getParameterTypes())
 				{
-					if(!pEvent.isCancelled() || lMethod.getAnnotation(EventHandler.class).ignoreCancelled())
+					if(lClass.equals(pEvent.getClass()))
 					{
-						try
+						if(!pEvent.isCancelled() || lMethod.getAnnotation(EventHandler.class).ignoreCancelled())
 						{
-							lMethod.invoke(eventHandlers.get(lMethod), pEvent);
-						}
-						catch (Exception e)
-						{
-							e.printStackTrace();
+							try
+							{
+								lMethod.invoke(lListener, pEvent);
+							}
+							catch (Exception e)
+							{
+								e.printStackTrace();
+							}
 						}
 					}
 				}
 			}
 		}
+
 	}
 }

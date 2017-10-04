@@ -22,6 +22,7 @@ public class NetworkDispatcher
 	public NetworkDispatcher(Networkable pNetworkable)
 	{
 		registeredPackets = new HashMap<Byte,Class<? extends IMessage>>();
+		networkable = pNetworkable;
 	}
 	
 	
@@ -59,12 +60,12 @@ public class NetworkDispatcher
 			for(ConnectedClient lClient : ((Server)networkable).getConnectedClients())
 			{
 				if(pUUID.equals(lClient.getClientID())) continue;
-				sendBytes(lClient.getSocket(), pMessage, MessageTarget.ALL, null);
+				sendBytes(lClient.getSocket(), pMessage, MessageTarget.ALL, pUUID);
 			}
 		}
 		else
 		{
-			sendBytes(((Client)networkable).getSocket(), pMessage, MessageTarget.ALL, null);
+			sendBytes(((Client)networkable).getSocket(), pMessage, MessageTarget.ALL, ((Client)networkable).getClientID());
 		}
 	}
 	
@@ -76,7 +77,7 @@ public class NetworkDispatcher
 			{
 				pSocket.getOutputStream().write(getChannel(pMessage));
 				pSocket.getOutputStream().write(pTarget.value);
-				ObjectOutputStream lOutput = (ObjectOutputStream) pSocket.getOutputStream();
+				ObjectOutputStream lOutput = new ObjectOutputStream(pSocket.getOutputStream());
 				lOutput.write(clientID.toString().getBytes());
 				ByteBuf lByteBuf = new ByteBuf();
 				pMessage.toBytes(lByteBuf);
@@ -85,7 +86,7 @@ public class NetworkDispatcher
 			else
 			{
 				pSocket.getOutputStream().write(getChannel(pMessage));
-				ObjectOutputStream lOutput = (ObjectOutputStream) pSocket.getOutputStream();
+				ObjectOutputStream lOutput = new ObjectOutputStream(pSocket.getOutputStream());
 				lOutput.write(clientID.toString().getBytes());
 				ByteBuf lByteBuf = new ByteBuf();
 				pMessage.toBytes(lByteBuf);
