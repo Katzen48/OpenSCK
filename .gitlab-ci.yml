@@ -1,0 +1,20 @@
+image: "registry.gitlab.com/osztiemtilk/open-source/testproject"
+
+variables:
+    GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dmaven.repo.local=.gradle/maven"
+
+cache:
+  paths:
+    - '.gradle/caches'
+
+deploy:jdk8:
+  stage: deploy
+  script:
+    - 'echo $GRADLE_PROPERTIES > gradle.properties'
+    - 'gradle -g .gradle clean assemble'
+  only:
+    - master
+  artifacts:
+    expire_in: 1 week
+    paths:
+    - 'build/libs'
