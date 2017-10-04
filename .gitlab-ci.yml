@@ -17,4 +17,4 @@ deploy:jdk8:
   artifacts:
     expire_in: 1 week
     paths:
-    - 'build/libs'
+    - 'build/libs/*.jar'
