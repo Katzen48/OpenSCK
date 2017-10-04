@@ -6,15 +6,49 @@
  * user guide available at https://docs.gradle.org/3.5/userguide/java_library_plugin.html
  */
 
-// Apply the java-library plugin to add support for Java Library
-apply plugin: 'java-library'
-
-// In this section you declare where to find the dependencies of your project
-repositories {
-    // Use jcenter for resolving your dependencies.
-    // You can declare any Maven/Ivy/file repository here.
+buildscript {
+  repositories {
     jcenter()
+  }
+  dependencies {
+    classpath "org.jfrog.buildinfo:build-info-extractor-gradle:latest.release"
+  }
 }
+
+allprojects {
+    apply plugin: "com.jfrog.artifactory"
+    group = 'de.katzen48'
+}
+
+artifactory {
+    contextUrl = "${artifactory_contextUrl}"   //The base Artifactory URL if not overridden by the publisher/resolver
+    publish {
+        repository {
+            repoKey = 'gradle-dev-local'
+            username = "${artifactory_user}"
+            password = "${artifactory_password}"
+            maven = true
+            
+        }
+    }
+    resolve {
+        repository {
+            repoKey = 'gradle-dev'
+            username = "${artifactory_user}"
+            password = "${artifactory_password}"
+            maven = true
+            
+        }
+    }
+}
+
+apply plugin: 'java-library'
+apply plugin: 'eclipse'
+apply plugin: 'maven-publish'
+apply plugin: 'maven'
+
+
+version='1.0-SNAPSHOT'
 
 dependencies {
     // This dependency is exported to consumers, that is to say found on their compile classpath.
@@ -27,3 +61,11 @@ dependencies {
     testImplementation 'junit:junit:4.12'
 }
 
+
+artifacts {
+  archives jar
+}
+
+artifactoryPublish {
+  publishConfigs('archives')
+}
