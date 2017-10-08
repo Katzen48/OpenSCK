@@ -1,6 +1,5 @@
 # OpenSCK - Easy Server-Client Creation Kit
 
-----------
 ## **Installation**
 To use OpenSCK you need a dependency manager like [Maven](https://maven.apache.org/) or [Gradle](https://gradle.org/).
 The downloading and updating process will be fully automaticly.
@@ -28,7 +27,6 @@ dependencies {
 	compile group: 'de.katzen48', name: 'opensck', version: 'latest'
 }
 ```
-----------
 ## **Usage**
 It's very easy to get started. Just create a server and a client and you're done. 
 When you want more functions you can create custom events, eventhandlers and new message to be sent to other parts of your network.
@@ -186,11 +184,9 @@ There are 6 priority levels, which are triggered in the following order:
 If you cancel an event at a higher stage, the lower stages will not get fired, when they not explicit have `ignoreCancelled=true` at their EventHandler Annotation.
 **Important:** Never ever cancel an Event at the Monitor Stage. It's just for (what the name says) Monitoring.
 
-----------
 ## Supporters
 Thanks going out to  **GhostZero** and **MansenC**, which were helping me with socket communication and multi threading.
 
-----------
 ## License
 Copyright (c) 2017 Katzen48
 
