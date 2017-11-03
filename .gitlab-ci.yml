@@ -11,10 +11,10 @@ deploy:jdk8:
   stage: deploy
   script:
     - 'echo $GRADLE_PROPERTIES > gradle.properties'
-    - 'gradle -g .gradle clean assemble'
+    - 'gradle -g .gradle clean assemble artifactoryPublish'
   only:
     - master
   artifacts:
     expire_in: 1 week
     paths:
-    - 'build/libs/*.jar'
+    - 'build/libs'
