@@ -1,6 +1,7 @@
 package de.katzen48.scsdk.event;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -32,7 +33,9 @@ public class EventManager
 		{
 			if(!eventHandlers.containsKey(pListener))
 			{
-				eventHandlers.put(pListener, Arrays.asList(pMethod));
+				List<Method> lList = new ArrayList<Method>();
+				lList.add(pMethod);
+				eventHandlers.put(pListener, lList);
 			}
 			else
 			{
