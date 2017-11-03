@@ -32,7 +32,6 @@ public class NetworkDispatcher
 		if(isChannelRegistered(pChannel)) return;
 		
 		byte lChannel = pChannel;
-		System.out.println(lChannel);
 		registeredPackets.put(lChannel, lPacketClass);
 	}
 	
