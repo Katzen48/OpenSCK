@@ -47,14 +47,14 @@ public class Server extends Networkable
 
 	public void start()
 	{
+		getEventManager().registerEvents(new MessageBroadcastListener(this));
+		getEventManager().registerEvents(new MessageRedirectListener(this));
+		getEventManager().registerEvents(new ClientConnectListener(this));
 		this.clients = new ArrayList<ConnectedClient>();
 		this.socketThread = new Thread(new ServerSocketRunnable(this));
 		socketThread.start();
 		this.socketReaderThread = new Thread(new ServerSocketReaderRunnable(this));
 		socketReaderThread.start();
-		getEventManager().registerEvents(new MessageBroadcastListener(this));
-		getEventManager().registerEvents(new MessageRedirectListener(this));
-		getEventManager().registerEvents(new ClientConnectListener(this));
 	}
 
 	protected void addClient(ConnectedClient pClient)

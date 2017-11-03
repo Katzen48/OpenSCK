@@ -25,11 +25,11 @@ public abstract class Client extends Networkable
 	{
 		try
 		{
+			getEventManager().registerEvents(new MessageReceiveListener(this));
+			getEventManager().registerEvents(new RemoteAuthenticationListener(this));
 			this.socket = new Socket(pHost, pPort);
 			this.socketThread = new Thread(new ClientSocketRunnable(this));
 			socketThread.start();
-			getEventManager().registerEvents(new MessageReceiveListener(this));
-			getEventManager().registerEvents(new RemoteAuthenticationListener(this));
 			RemoteConnectEvent lConnectEvent = new RemoteConnectEvent(this.socket);
 			getEventManager().fireEvent(lConnectEvent);
 			if(lConnectEvent.isCancelled())
