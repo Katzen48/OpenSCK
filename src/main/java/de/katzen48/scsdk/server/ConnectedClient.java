@@ -25,4 +25,9 @@ public class ConnectedClient
 	{
 		return socket;
 	}
+	
+	public boolean isConnected()
+	{
+		return socket.isClosed();
+	}
 }

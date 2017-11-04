@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.UUID;
 
 import de.katzen48.scsdk.event.events.MessageReceiveEvent;
+import de.katzen48.scsdk.event.events.server.ClientDisconnectEvent;
 import de.katzen48.scsdk.event.events.server.MessageBroadcastEvent;
 import de.katzen48.scsdk.event.events.server.MessageRedirectEvent;
 import de.katzen48.scsdk.network.ByteBuf;
@@ -36,6 +37,13 @@ class ServerSocketReaderRunnable implements Runnable
 			for(Iterator<ConnectedClient> it= clients.iterator() ; it.hasNext();)
 			{
 				ConnectedClient lClient = it.next();
+				if(!lClient.isConnected())
+				{
+					server.getEventManager().fireEvent(new ClientDisconnectEvent(lClient));
+					it.remove();
+					continue;
+				}
+				
 				try
 				{
 					InputStream lInput = lClient.getSocket().getInputStream();

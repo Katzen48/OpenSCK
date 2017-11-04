@@ -10,6 +10,9 @@ import de.katzen48.scsdk.event.events.client.RemoteConnectEvent;
 public abstract class Client extends Networkable
 {
 	protected Socket socket;
+	protected String host;
+	protected int port;
+	private boolean autoReconnect;
 	private UUID clientID;
 	private Thread socketThread;
 	protected boolean ready = false;
@@ -25,9 +28,11 @@ public abstract class Client extends Networkable
 	{
 		try
 		{
+			host = pHost;
+			port = pPort;
 			getEventManager().registerEvents(new MessageReceiveListener(this));
 			getEventManager().registerEvents(new RemoteAuthenticationListener(this));
-			this.socket = new Socket(pHost, pPort);
+			this.socket = new Socket(host, port);
 			this.socketThread = new Thread(new ClientSocketRunnable(this));
 			socketThread.start();
 			RemoteConnectEvent lConnectEvent = new RemoteConnectEvent(this.socket);
@@ -43,7 +48,19 @@ public abstract class Client extends Networkable
 			e.printStackTrace();
 		}
 	}
+	
+	public void start(String pHost, int pPort, boolean pAutoReconnect)
+	{
+		this.autoReconnect = pAutoReconnect;
+		if(autoReconnect) getEventManager().registerEvents(new RemoteDisconnectListener(this));
+		start(pHost, pPort);
+	}
 
+	public boolean doesAutoReconnect()
+	{
+		return autoReconnect;
+	}
+	
 	private void setClientFlag()
 	{
 		try
